@@ -1,0 +1,1221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Key Tester</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%232a3a7a'/%3E%3Cstop offset='1' stop-color='%235b3d99'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='9' width='22' height='14' rx='2.5'/%3E%3Cpath d='M9.5 13.5h.01M13.5 13.5h.01M18.5 13.5h.01M22.5 13.5h.01M9.5 18h.01M22.5 18h.01M13 18.5h6'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#090b10; --panel:#10131a; --panel2:#151922; --line:#222734; --line2:#2d3443;
+  --text:#e7eaf0; --muted:#8a93a5; --dim:#5b6374;
+  --accent:#7c9cff; --violet:#b48cff;
+  --green:#3ddc84; --red:#ff5468; --orange:#ffab40; --blue:#4fb6ff;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:
+    radial-gradient(1100px 520px at 50% -180px,#1b2347 0%,transparent 62%),
+    radial-gradient(700px 400px at 100% 0,rgba(180,140,255,.07),transparent 70%),
+    var(--bg);
+  color:var(--text);
+  font:14px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Inter,Roboto,sans-serif;
+  min-height:100vh;-webkit-font-smoothing:antialiased;
+}
+code{font:12px ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;color:#b9c3d6;background:#1a1f2a;border:1px solid var(--line);padding:1px 5px;border-radius:5px}
+.app{max-width:1520px;margin:0 auto;padding:28px 24px 60px}
+h1,h2,h3{margin:0;letter-spacing:-.01em}
+h2{font-size:16px;font-weight:650}
+h3{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:22px 0 10px}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#2a3a7a,#5b3d99);box-shadow:0 8px 30px -8px rgba(124,156,255,.6),inset 0 1px 0 rgba(255,255,255,.15)}
+h1{font-size:24px;font-weight:750}
+.sub{margin:2px 0 0;color:var(--muted)}
+.topctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* controls */
+.btn{appearance:none;border:1px solid var(--line2);background:var(--panel2);color:var(--text);font:inherit;font-weight:550;padding:8px 14px;border-radius:10px;cursor:pointer;transition:background .15s,border-color .15s;white-space:nowrap}
+.btn:hover{background:#1c2130;border-color:#3a4255}
+.btn.primary{background:linear-gradient(180deg,#6f8fff,#5a76e8);border-color:#7c9cff;color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:#ff8e9c}
+.btn.sm{padding:5px 10px;font-size:12.5px;border-radius:8px}
+select{appearance:none;font:inherit;color:var(--text);background:var(--panel2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a93a5' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 11px center;border:1px solid var(--line2);border-radius:10px;padding:8px 30px 8px 12px;cursor:pointer}
+select:hover{border-color:#3a4255}
+.field{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+.info{position:relative;display:inline-flex}
+.info button{appearance:none;width:18px;height:18px;padding:0;border-radius:50%;border:1px solid var(--line2);background:var(--panel2);color:var(--muted);font:italic 700 11px/1 Georgia,serif;cursor:pointer;display:grid;place-items:center}
+.info button:hover,.info.open button{color:var(--text);border-color:var(--accent)}
+.info .tip{display:none;position:absolute;right:-8px;top:calc(100% + 8px);z-index:40;width:340px;padding:12px 14px;border-radius:12px;background:#1d2232;border:1px solid #3a4462;color:var(--muted);font-size:12.5px;line-height:1.5;box-shadow:0 20px 50px -10px rgba(0,0,0,.7)}
+.info .tip b{color:var(--text)}
+.info:hover .tip,.info.open .tip{display:block}
+.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px;background:rgba(16,19,26,.7);border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(8px)}
+.seg{display:flex;background:#0c0f15;border:1px solid var(--line);border-radius:11px;padding:3px;gap:2px}
+.seg button{appearance:none;border:0;background:none;color:var(--muted);font:inherit;font-weight:600;padding:7px 14px;border-radius:8px;cursor:pointer;transition:color .15s,background .15s}
+.seg button:hover{color:var(--text)}
+.seg button.on{background:linear-gradient(180deg,#232a3d,#1b2131);color:#fff;box-shadow:inset 0 0 0 1px #343d55}
+.selects{display:flex;gap:8px;flex-wrap:wrap}
+.thr{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin-left:auto}
+.thr b{color:var(--text);font-variant-numeric:tabular-nums;min-width:46px}
+input[type=range]{accent-color:var(--accent);width:130px}
+
+/* progress */
+.progress{display:flex;align-items:center;gap:14px;margin:18px 4px 14px}
+.pbar{flex:1;height:6px;border-radius:99px;background:#181c26;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .25s}
+.ptext{color:var(--muted);font-size:13px;white-space:nowrap}
+.ptext b{color:var(--text)}
+
+/* keyboard */
+.kbcard{background:linear-gradient(180deg,#131721,#0e1117);border:1px solid var(--line);border-radius:22px;padding:24px 22px 14px;box-shadow:0 40px 90px -40px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.03)}
+#kbScroll{overflow-x:auto;padding:2px 0 4px}
+#kb{position:relative;margin:0 auto}
+.kbfoot{text-align:center;color:var(--dim);font-size:12px;margin-top:10px}
+.key{
+  position:absolute;--kbg:#1a1e28;--kbd:#2a303e;--kfg:#a6afc0;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 55%),var(--kbg);
+  border:1px solid var(--kbd);border-radius:calc(var(--u)*.16);color:var(--kfg);
+  box-shadow:inset 0 -2px 0 rgba(0,0,0,.35),0 1px 0 rgba(0,0,0,.45);
+  transition:background-color .15s,border-color .15s,color .15s,transform .06s,box-shadow .15s,opacity .15s;
+  cursor:pointer;user-select:none;-webkit-user-select:none;
+}
+.key:hover{--kbd:#3b4356}
+.key.shape{background:none;border:0;box-shadow:none}
+.key.shape svg{position:absolute;inset:0;overflow:visible}
+.key.shape path{fill:var(--kbg);stroke:var(--kbd);stroke-width:1;transition:fill .15s,stroke .15s}
+.lbl{position:absolute;left:0;right:0;top:0;height:var(--lblH,100%);display:flex;align-items:center;justify-content:center;font-size:calc(var(--u)*.3);font-weight:560;pointer-events:none;text-align:center;line-height:1.05}
+.lbl.sm{font-size:calc(var(--u)*.23)}
+.lbl.xs{font-size:calc(var(--u)*.19)}
+.lbl.two{flex-direction:column;gap:calc(var(--u)*.03)}
+.lbl.two .s{font-size:.72em;opacity:.55}
+.cnt{position:absolute;left:calc(var(--u)*.1);top:calc(var(--u)*.05);font-size:calc(var(--u)*.2);font-weight:750;font-variant-numeric:tabular-nums;pointer-events:none}
+.dot{position:absolute;right:calc(var(--u)*-.1);top:calc(var(--u)*-.1);min-width:calc(var(--u)*.34);height:calc(var(--u)*.34);padding:0 calc(var(--u)*.07);border-radius:99px;background:var(--red);color:#fff;font-size:calc(var(--u)*.2);font-weight:750;display:grid;place-items:center;box-shadow:0 0 0 2px #10131a,0 2px 10px rgba(255,84,104,.5);pointer-events:none;z-index:2}
+.bar{display:none;position:absolute;left:calc(var(--barL,0px) + var(--u)*.14);right:calc(var(--u)*.14);bottom:calc(var(--u)*.1);height:3px;border-radius:9px;background:rgba(255,255,255,.08);pointer-events:none}
+.bar i{display:block;height:100%;width:var(--p,0);border-radius:9px;background:var(--accent)}
+.key.partial .bar{display:block}
+.key.ok{--kbg:rgba(61,220,132,.12);--kbd:rgba(61,220,132,.6);--kfg:#72f2aa}
+.key.touched{--kbg:#212737;--kbd:#4a546b;--kfg:#e3e8f0}
+.key.partial{--kbg:rgba(124,156,255,.10);--kbd:rgba(124,156,255,.45);--kfg:#cbd6ff}
+.key.over{--kbg:rgba(255,84,104,.16);--kbd:rgba(255,84,104,.8);--kfg:#ff93a0}
+.key.overc{--kbg:rgba(255,171,64,.16);--kbd:rgba(255,171,64,.85);--kfg:#ffc77d}
+.key.under{--kbg:rgba(79,182,255,.15);--kbd:rgba(79,182,255,.8);--kfg:#93d2ff}
+.key.dead{--kbg:rgba(79,182,255,.05);--kbd:rgba(79,182,255,.95);--kfg:#93d2ff;border-style:dashed}
+.key.shape.dead path{stroke-dasharray:5 3}
+.key.target{--kbg:rgba(180,140,255,.18);--kbd:var(--violet);--kfg:#e6d9ff;box-shadow:0 0 0 1px var(--violet),0 0 24px -4px rgba(180,140,255,.75)}
+.key.hprog .bar{display:block}
+.key.hprog .bar i{background:var(--violet)}
+.key.ring{box-shadow:0 0 0 2px var(--violet),0 0 20px -4px rgba(180,140,255,.75)}
+.key.excl{opacity:.28;border-style:dashed}
+.key.shape.excl path{stroke-dasharray:4 3}
+.key.down{transform:translateY(1px) scale(.965);--kbg:#2b3553;--kbd:var(--accent);--kfg:#fff;box-shadow:0 0 0 1px var(--accent),0 0 20px -2px rgba(124,156,255,.65)}
+.key.shape.down,.key.shape.target,.key.shape.ring{box-shadow:none}
+.key.shape.down svg{filter:drop-shadow(0 0 8px rgba(124,156,255,.6))}
+.key.shape.ring:not(.down) svg,.key.shape.target:not(.down) svg{filter:drop-shadow(0 0 6px rgba(180,140,255,.8))}
+.key.shape.ring:not(.down) path{stroke:var(--violet);stroke-width:2}
+
+/* cards */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 20px}
+.card p{color:var(--muted);margin:6px 0 0}
+.extras{margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.extras[hidden]{display:none}
+.extras .lbl2{color:var(--muted);font-size:13px;margin-right:4px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border-radius:99px;background:var(--panel2);border:1px solid var(--line2);font-size:12.5px}
+.chip .n{color:var(--muted);font-variant-numeric:tabular-nums}
+.chip.bad{border-color:rgba(255,84,104,.6);color:#ff9aa6}
+.mpanel{margin-top:16px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+.mpanel[hidden]{display:none}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12.5px;color:var(--muted);align-content:start}
+.lg{display:inline-flex;align-items:center;gap:8px}
+.sw{width:22px;height:18px;border-radius:5px;border:1px solid #2a303e;background:#1a1e28;position:relative;flex:none}
+.sw.ok{background:rgba(61,220,132,.12);border-color:rgba(61,220,132,.6)}
+.sw.partial{background:rgba(124,156,255,.10);border-color:rgba(124,156,255,.45)}
+.sw.over{background:rgba(255,84,104,.16);border-color:rgba(255,84,104,.8)}
+.sw.overc{background:rgba(255,171,64,.16);border-color:rgba(255,171,64,.85)}
+.sw.under{background:rgba(79,182,255,.15);border-color:rgba(79,182,255,.8)}
+.sw.dead{border:1px dashed rgba(79,182,255,.95)}
+.sw.touched{background:#212737;border-color:#4a546b}
+.sw.target{background:rgba(180,140,255,.18);border-color:var(--violet)}
+.sw.excl{opacity:.35;border-style:dashed}
+.sw.chat::after{content:"2";position:absolute;right:-6px;top:-6px;width:13px;height:13px;border-radius:9px;background:var(--red);color:#fff;font-size:9px;font-weight:800;display:grid;place-items:center}
+.cctl{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px}
+.switch{display:inline-flex;align-items:center;gap:9px;color:var(--muted);font-size:13px;cursor:pointer}
+.switch input{display:none}
+.switch span{width:34px;height:20px;border-radius:99px;background:#232837;border:1px solid var(--line2);position:relative;transition:background .15s}
+.switch span::after{content:"";position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#8a93a5;transition:transform .15s,background .15s}
+.switch input:checked+span{background:#3a4ca0;border-color:#5a6fd0}
+.switch input:checked+span::after{transform:translateX(14px);background:#fff}
+.tips{margin:0;padding-left:18px;color:var(--muted);font-size:13px}
+.tips li{margin:4px 0}
+
+/* hammer */
+.hhead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.eyebrow{font-size:11.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--violet);font-weight:700}
+.htitle{font-size:26px;font-weight:750;margin-top:2px}
+.hsub{color:var(--muted);font-size:13px}
+.verdict{margin-top:12px;padding:10px 14px;border-radius:12px;font-weight:600;font-size:13.5px;background:#151a24;border:1px solid var(--line2)}
+.verdict.bad{background:rgba(255,84,104,.1);border-color:rgba(255,84,104,.5);color:#ffa0ab}
+.verdict.good{background:rgba(61,220,132,.08);border-color:rgba(61,220,132,.45);color:#86f2b5}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;margin-top:14px}
+.tile{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px 12px}
+.tile .tl{font-size:11.5px;color:var(--muted)}
+.tile .tv{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
+.tile.bad{border-color:rgba(255,84,104,.5)} .tile.bad .tv{color:#ff8e9c}
+.tile.good .tv{color:#72f2aa}
+.ctitle{font-size:12px;color:var(--muted);font-weight:600;margin:16px 0 8px}
+.hist{display:flex;align-items:stretch;gap:4px;height:150px;padding-bottom:18px;position:relative}
+.hb{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;position:relative;min-width:0}
+.hb i{display:flex;flex-direction:column;justify-content:flex-end;width:100%;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#8aa6ff,#5b74d6);min-height:0;overflow:hidden}
+.hb i b{display:block;width:100%;background:linear-gradient(180deg,#ff7d8d,#d63a50)}
+.hb .hn{font-size:11px;color:var(--text);font-variant-numeric:tabular-nums;margin-bottom:3px}
+.hb .hl{position:absolute;bottom:-18px;font-size:10.5px;color:var(--dim);white-space:nowrap}
+.hb::before{content:"";position:absolute;inset:0 0 0 0;border-radius:5px;background:rgba(255,255,255,.02);z-index:-1}
+.strip{position:relative;height:64px;display:flex;align-items:flex-end;gap:2px;background:#0d1016;border:1px solid var(--line);border-radius:10px;padding:6px}
+.strip i{flex:1;max-width:10px;background:#5b74d6;border-radius:2px 2px 0 0}
+.strip i.bad{background:var(--red)}
+.strip .thl{position:absolute;left:6px;right:6px;border-top:1px dashed rgba(255,84,104,.6);pointer-events:none}
+.strip .thl span{position:absolute;right:0;top:-15px;font-size:10px;color:#ff8e9c}
+.strip .empty{color:var(--dim);font-size:12px;margin:auto}
+
+/* live */
+.live{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:16px;margin-top:16px}
+.ihead{display:flex;align-items:center;gap:14px}
+.icap{min-width:56px;max-width:220px;height:56px;padding:0 12px;border-radius:12px;display:grid;place-items:center;font-size:22px;overflow:hidden;font-weight:700;background:linear-gradient(180deg,#232a3b,#1a1f2b);border:1px solid #39425a;box-shadow:inset 0 -3px 0 rgba(0,0,0,.35)}
+.iname{font-size:17px;font-weight:700}
+.icode{color:var(--muted);font-size:12.5px;margin-top:3px}
+.held{color:var(--accent);font-weight:700}
+.empty{color:var(--dim)}
+.log{list-style:none;margin:10px 0 0;padding:0;font-size:12.5px;font-variant-numeric:tabular-nums}
+.log li{display:grid;grid-template-columns:70px 18px minmax(90px,170px) 1fr;gap:8px;padding:5px 8px;border-radius:7px;align-items:center}
+.log li:nth-child(odd){background:rgba(255,255,255,.018)}
+.log li.chat{background:rgba(255,84,104,.12);color:#ffb0b9}
+.log li.chat b{color:#ff6b7d;text-transform:uppercase;font-size:11px;letter-spacing:.06em}
+.log .dt{color:var(--dim);text-align:right}
+.log .ic{color:var(--accent);text-align:center}
+.log li.up .ic{color:var(--dim)}
+.log li.repeat .ic{color:var(--orange)}
+.log .kn{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log .det{color:var(--muted)}
+.log li.empty{display:block;color:var(--dim);background:none}
+
+/* report */
+.report{margin-top:16px}
+.rhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.rhead h2{font-size:19px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.sus{display:flex;align-items:center;gap:14px;padding:11px 12px;border:1px solid var(--line);background:var(--panel2);border-radius:13px;margin-bottom:8px}
+.mcap{min-width:42px;height:42px;padding:0 8px;border-radius:9px;display:grid;place-items:center;font-weight:700;background:#1f2533;border:1px solid #39425a;font-size:15px}
+.sinfo{flex:1;min-width:0}
+.sname{font-weight:650}
+.sname code{margin-left:6px}
+.stags{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
+.tag{font-size:11.5px;font-weight:650;padding:2px 8px;border-radius:99px;border:1px solid}
+.tag.bad{color:#ff96a3;border-color:rgba(255,84,104,.55);background:rgba(255,84,104,.1)}
+.tag.warn{color:#ffc77d;border-color:rgba(255,171,64,.55);background:rgba(255,171,64,.1)}
+.tag.miss,.tag.dead{color:#93d2ff;border-color:rgba(79,182,255,.55);background:rgba(79,182,255,.1)}
+.tag.info{color:var(--muted);border-color:var(--line2)}
+.tag.good{color:#86f2b5;border-color:rgba(61,220,132,.45);background:rgba(61,220,132,.08)}
+.snums{color:var(--muted);font-size:12.5px;margin-top:5px}
+.nosus{padding:16px;border:1px dashed var(--line2);border-radius:13px;color:var(--muted);text-align:center}
+.never{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+details{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+summary{cursor:pointer;color:var(--muted);font-weight:600;user-select:none}
+summary:hover{color:var(--text)}
+.tablewrap{overflow-x:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;position:sticky;top:0;background:var(--panel)}
+td.num,th.num{text-align:right}
+tr.bad td{color:#ffb0b9}
+.howto{color:var(--muted);font-size:13.5px}
+.howto h4{color:var(--text);margin:14px 0 4px;font-size:14px}
+.howto p{margin:4px 0}
+footer{color:var(--dim);font-size:12px;text-align:center;margin-top:28px}
+
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:#1d2232;border:1px solid #3a4462;color:var(--text);padding:10px 16px;border-radius:12px;box-shadow:0 20px 50px -10px rgba(0,0,0,.7);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:calc(100vw - 32px)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* wide screens: everything fits in one viewport, side columns scroll on their own */
+@media (min-width:1280px) and (min-height:680px){
+  .app{max-width:none;height:100vh;display:flex;flex-direction:column;padding:12px 16px}
+  .top{margin-bottom:8px;gap:12px}
+  .brand{gap:10px}
+  .logo{width:34px;height:34px;border-radius:10px}
+  .logo svg{width:20px;height:20px}
+  h1{font-size:19px}
+  .sub{margin:0;font-size:12.5px}
+  .btn{padding:6px 12px}
+  .btn.sm{padding:4px 9px}
+  select{padding:6px 28px 6px 10px}
+  .toolbar{padding:6px 8px;gap:10px;border-radius:12px}
+  .seg button{padding:5px 12px}
+  .progress{margin:8px 4px}
+  .workspace{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) clamp(400px,27vw,520px);gap:12px}
+  .colL,.colR{min-height:0;display:flex;flex-direction:column;gap:10px}
+  .colL{overflow-y:auto}
+  .kbcard{padding:14px 16px 8px;border-radius:16px;flex:none}
+  .kbfoot{margin-top:6px}
+  .extras,.mpanel,.report{margin-top:0}
+  .card{padding:12px 16px;border-radius:14px}
+  .mpanel{gap:20px}
+  .tips{font-size:12.5px}
+  .tips li{margin:2px 0}
+  .hist{height:110px}
+  .ctitle{margin:10px 0 6px}
+  .live{display:contents}
+  .inspcard{flex:none}
+  .inspcard h2{margin-bottom:8px!important}
+  .inspcard .tiles{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;margin-top:10px}
+  .icap{height:44px;min-width:44px;font-size:18px}
+  .tile{padding:6px 10px}
+  .tile .tv{font-size:16px}
+  .logcard{flex:1 1 0;min-height:140px;overflow-y:auto}
+  .log{margin-top:6px}
+  .log li{padding:3px 8px}
+  .report{flex:1.7 1 0;min-height:0;overflow-y:auto}
+  .rhead h2{font-size:16px}
+  .report h3{margin:14px 0 8px}
+  .sus{padding:8px 10px;gap:10px}
+  .report .tiles{margin-top:10px}
+  footer{display:none}
+}
+@media (max-width:980px){
+  .mpanel,.live{grid-template-columns:1fr}
+  .thr{margin-left:0}
+}
+@media (max-width:600px){
+  .app{padding:18px 16px 40px}
+  .kbcard{padding:16px 10px 10px}
+  .log li{grid-template-columns:56px 14px 1fr}
+  .log .det{grid-column:2/-1}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="top">
+  <div class="brand">
+    <div class="logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2.5"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01M9 14.5h6"/></svg></div>
+    <div>
+      <h1>Key Tester</h1>
+      <p class="sub">Find dead, missed and double-firing keys. Just start typing. Nothing leaves this page.</p>
+    </div>
+  </div>
+  <div class="topctl">
+    <div class="field"><label for="conn">Connection</label>
+      <span class="info" id="connInfo"><button type="button" aria-label="What is Connection for?" aria-describedby="connTip">i</button><span class="tip" id="connTip" role="tooltip"><b>Each connection keeps its own results.</b> Every press is recorded under the connection selected here. Switching shows that connection’s results; nothing is deleted. Detection and chatter scoring are the same for all of them.<br><br>Test wired, 2.4 GHz and Bluetooth separately and switch between them to compare. Exports include every connection. Wireless links can add delayed, dropped or repeated reports that look like chatter. If extra or doubled presses only happen wirelessly, the radio link is the cause, not the switch.</span></span>
+      <select id="conn"><option value="wired">Wired (USB)</option><option value="2.4g">2.4 GHz dongle</option><option value="bt">Bluetooth</option></select>
+    </div>
+    <button class="btn" id="fs">⛶ Fullscreen + lock keys</button>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="seg" id="modes">
+    <button data-mode="cover">Coverage</button>
+    <button data-mode="count"><span id="segN">10</span>× Count</button>
+    <button data-mode="hammer">Hammer</button>
+  </div>
+  <div class="selects">
+    <select id="form" title="Physical layout"><option value="iso">ISO</option><option value="ansi">ANSI</option></select>
+    <select id="size" title="Keyboard size"><option value="full">Full size</option><option value="tkl">TKL (87/88)</option><option value="75">75%</option><option value="65">65%</option><option value="60">60%</option></select>
+    <select id="labels" title="Key labels"><option value="hu">Hungarian</option><option value="uk">UK</option><option value="us">US</option><option value="auto">Auto (from OS)</option></select>
+    <select id="os" title="Modifier labels"><option value="win">Windows / Linux</option><option value="mac">macOS</option></select>
+  </div>
+  <label class="thr" title="A second press of the same key within this time of the previous press (or within 40% of it after the key was released) counts as chatter. People can't double-tap faster than about 70–100 ms.">Chatter threshold
+    <input type="range" id="thr" min="10" max="120" step="5"><b id="thrV">50 ms</b>
+  </label>
+  <button class="btn" id="reset">↺ Reset mode</button>
+</div>
+
+<div class="progress"><div class="pbar"><i id="pfill"></i></div><div class="ptext" id="ptext"></div></div>
+
+<div class="workspace">
+<div class="colL">
+<section class="kbcard">
+  <div id="kbScroll"><div id="kb"></div></div>
+  <div class="kbfoot">Click a key to inspect it · Right-click a key to mark it “not on my keyboard”</div>
+</section>
+
+<section class="extras" id="extras" hidden></section>
+
+<!-- Coverage -->
+<section class="card mpanel" id="pCover">
+  <div>
+    <h2>Coverage</h2>
+    <p>Press every key once. Keys turn green as soon as they register. A key that stays gray never reached the computer. A red badge means the key fired again faster than a person can press it (chatter). Chatter is tracked in every mode.</p>
+    <ul class="tips" style="margin-top:12px">
+      <li>Use <b>Fullscreen + lock keys</b> to test Esc, Win/Super and keys the browser normally takes (Chrome). Hold Esc to leave.</li>
+      <li>Press keys one at a time. Outside locked fullscreen, Chrome can’t block Ctrl+W, Ctrl+T or Ctrl+N, so holding Ctrl while pressing W would close the tab.</li>
+      <li>Fn and the keyboard’s own RGB and Bluetooth keys are handled inside the keyboard and never reach the computer.</li>
+      <li>Media keys and the knob show up in the “Other keys detected” strip if they reach the browser.</li>
+    </ul>
+  </div>
+  <div class="legend">
+    <span class="lg"><i class="sw"></i>Not registered</span>
+    <span class="lg"><i class="sw ok"></i>Registered</span>
+    <span class="lg"><i class="sw chat"></i>Chatter detected</span>
+    <span class="lg"><i class="sw excl"></i>Not on keyboard</span>
+  </div>
+</section>
+
+<!-- Count -->
+<section class="card mpanel" id="pCount" hidden>
+  <div>
+    <h2>Count test</h2>
+    <p>Press every key exactly <b class="nT">10</b> times at a natural pace, in any order. Count in your head and don’t top up a key because its counter looks low. Then press <b>Finish</b>. Keys that registered too few presses are dropping presses. Keys with extra presses that came in faster than a person can type are chattering.</p>
+    <div class="cctl">
+      <label class="field">Presses per key
+        <select id="target"><option value="5">5</option><option value="10">10</option><option value="20">20</option></select>
+      </label>
+      <label class="switch"><input type="checkbox" id="blind"><span></span>Blind (hide counts until Finish)</label>
+      <button class="btn primary" id="finish">Finish &amp; evaluate</button>
+    </div>
+  </div>
+  <div class="legend">
+    <span class="lg"><i class="sw partial"></i>In progress</span>
+    <span class="lg"><i class="sw ok"></i>Exactly <span class="nT">10</span></span>
+    <span class="lg"><i class="sw overc"></i>Too many (chatter)</span>
+    <span class="lg"><i class="sw over"></i>Too many</span>
+    <span class="lg"><i class="sw under"></i>Too few (after Finish)</span>
+    <span class="lg"><i class="sw dead"></i>None registered (after Finish)</span>
+    <span class="lg"><i class="sw touched"></i>Pressed (blind)</span>
+    <span class="lg"><i class="sw chat"></i>Chatter badge</span>
+  </div>
+</section>
+
+<!-- Hammer -->
+<section class="card mpanel" id="pHammer" hidden>
+  <div>
+    <div class="hhead">
+      <div>
+        <div class="eyebrow">Hammer target</div>
+        <div class="htitle" id="hName">No target yet</div>
+        <div class="hsub" id="hCode"></div>
+      </div>
+      <label class="switch" title="When off, the view follows whichever key you press. When on, it stays on this key and presses of other keys are not counted."><input type="checkbox" id="hLock"><span></span>Lock target</label>
+    </div>
+    <div class="verdict" id="hVerdict"></div>
+    <div class="tiles" id="hStats"></div>
+    <p style="font-size:12.5px;margin-top:10px">The view switches to whichever key you press; each key keeps its own hammer data. Turn on <b>Lock target</b> to stay on one key; presses of other keys are then not counted. Keys turn <b>red</b> at the first chatter and <b>green</b> after 100 presses without chatter. Tap each key 100+ times. Mix slow taps, fast taps and soft, partial presses, since intermittent chatter often shows up only at certain speeds or pressures. Red (in the chart and the strip) is chatter: a gap shorter than a person can produce, either since the previous press or since the key was released.</p>
+  </div>
+  <div>
+    <div class="ctitle" style="margin-top:0">Time between presses</div>
+    <div class="hist" id="hHist"></div>
+    <div class="ctitle">Last 80 gaps (log scale)</div>
+    <div class="strip" id="hStrip"></div>
+  </div>
+</section>
+</div>
+
+<div class="colR">
+<div class="live">
+  <section class="card inspcard">
+    <h2 style="margin-bottom:12px">Key inspector</h2>
+    <div id="insp"></div>
+  </section>
+  <section class="card logcard">
+    <h2>Event log</h2>
+    <ul class="log" id="log"></ul>
+  </section>
+</div>
+
+<section class="card report">
+  <div class="rhead">
+    <h2>Results</h2>
+    <div class="btns">
+      <button class="btn sm" id="expCsv">Export CSV</button>
+      <button class="btn sm" id="expJson">Export JSON</button>
+      <button class="btn sm danger" id="resetAll">Reset everything</button>
+    </div>
+  </div>
+  <div class="tiles" id="rTiles"></div>
+  <h3>Suspect keys</h3>
+  <div id="rSus"></div>
+  <div id="rNever"></div>
+  <details id="rAll"><summary>All keys</summary><div class="tablewrap"><table id="rTable"></table></div></details>
+  <details class="howto">
+    <summary>How to read the results &amp; fixing tips</summary>
+    <h4>Chatter (double-firing)</h4>
+    <p>The switch “bounces”: one physical press is reported as two or more, usually 5–30 ms apart. A person can’t double-tap the same key faster than about 70–100 ms, so any gap below the threshold is counted as chatter. Bounces can also happen as the key is released: a re-press within 40% of the threshold (20 ms by default) after a release is counted as chatter too. Intermittent chatter (“111” → “1111” only sometimes) is the classic symptom.</p>
+    <h4>Missed presses / dead keys</h4>
+    <p>Software can’t see a press that never arrived. The count test catches these: if you pressed a key 10 times and only 8 registered, it’s dropping presses. Repeat the test to make sure it wasn’t a miscount.</p>
+    <h4>Auto-repeat</h4>
+    <p>The system repeats a key while you hold it down. That’s normal for a long hold. If a key auto-repeats when you only tapped it, it is releasing slowly or sticking.</p>
+    <h4>Fixing (Keychron V6 Max and similar hot-swap boards)</h4>
+    <p>1. Swap the suspect switch with one from a key you rarely use, then hammer-test both positions. If the fault moves with the switch, the switch is bad. If it stays at the position, suspect the socket or solder joint.<br>
+    2. Check whether Keychron Launcher or VIA lets you raise the debounce time (e.g. 5 → 10–15 ms). This often stops intermittent chatter.<br>
+    3. Test wired, 2.4 GHz and Bluetooth separately (set “Connection” before exporting). If extras only happen wirelessly, the cause is the radio link, not the switch.<br>
+    4. A worn or dirty switch can sometimes be revived with contact cleaner, but replacing it is the reliable fix.</p>
+  </details>
+</section>
+</div>
+</div>
+
+<footer>Single-file key tester · data is kept only in this browser (localStorage) · best in Chrome</footer>
+</div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fms = v => (v == null || !isFinite(v)) ? '—' : (v < 10 ? v.toFixed(1) : Math.round(v)) + ' ms';
+const fdt = v => v < 1000 ? Math.round(v) + ' ms' : (v / 1000).toFixed(1) + ' s';
+
+/* ---------------- Layouts ---------------- */
+const DIGITS = ['Backquote','Digit1','Digit2','Digit3','Digit4','Digit5','Digit6','Digit7','Digit8','Digit9','Digit0','Minus','Equal'];
+const QROW = ['KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP','BracketLeft','BracketRight'];
+const AROW = ['KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL','Semicolon','Quote'];
+const ZROW = ['KeyZ','KeyX','KeyC','KeyV','KeyB','KeyN','KeyM','Comma','Period','Slash'];
+const FK = n => [0, 1, 2, 3].map(i => 'F' + (n + i));
+
+function buildLayout(form, size) {
+  const keys = [];
+  const add = (code, x, y, w = 1, hh = 1, shape) => keys.push({ code, x, y, w, h: hh, shape });
+  const row = (y, x, items) => {
+    for (const it of items) {
+      if (typeof it === 'number') { x += it; continue; }
+      const [c, w = 1, hh = 1] = Array.isArray(it) ? it : [it];
+      add(c, x, y, w, hh); x += w;
+    }
+  };
+  const iso = form === 'iso';
+  const hasF = size === 'full' || size === 'tkl' || size === '75';
+  const compact = size === '75' || size === '65';
+  const y1 = hasF ? (size === '75' ? 1.15 : 1.25) : 0;
+  const y2 = y1 + 1, y3 = y1 + 2, y4 = y1 + 3, y5 = y1 + 4;
+
+  if (size === 'full' || size === 'tkl') {
+    row(0, 0, ['Escape', 1, ...FK(1), .5, ...FK(5), .5, ...FK(9)]);
+    row(0, 15.25, ['PrintScreen', 'ScrollLock', 'Pause']);
+  } else if (size === '75') {
+    row(0, 0, ['Escape', ...FK(1), ...FK(5), ...FK(9), 'PrintScreen', 'Insert', 'Delete']);
+  }
+  row(y1, 0, [...DIGITS, ['Backspace', 2]]);
+  const rShift = compact ? 1.75 : 2.75;
+  if (iso) {
+    row(y2, 0, [['Tab', 1.5], ...QROW]);
+    add('Enter', 13.5, y2, 1.5, 2, 'isoEnter');
+    row(y3, 0, [['CapsLock', 1.75], ...AROW, 'Backslash']);
+    row(y4, 0, [['ShiftLeft', 1.25], 'IntlBackslash', ...ZROW, ['ShiftRight', rShift]]);
+  } else {
+    row(y2, 0, [['Tab', 1.5], ...QROW, ['Backslash', 1.5]]);
+    row(y3, 0, [['CapsLock', 1.75], ...AROW, ['Enter', 2.25]]);
+    row(y4, 0, [['ShiftLeft', 2.25], ...ZROW, ['ShiftRight', rShift]]);
+  }
+  if (compact) {
+    row(y5, 0, [['ControlLeft', 1.25], ['MetaLeft', 1.25], ['AltLeft', 1.25], ['Space', 6.25], 'AltRight', 'ContextMenu', 'ControlRight']);
+    add('ArrowUp', 14, y4);
+    row(y5, 13, ['ArrowLeft', 'ArrowDown', 'ArrowRight']);
+    (size === '75' ? ['Home', 'PageUp', 'PageDown', 'End'] : ['Delete', 'PageUp', 'PageDown', 'End'])
+      .forEach((c, i) => add(c, 15, y1 + i));
+  } else {
+    row(y5, 0, [['ControlLeft', 1.25], ['MetaLeft', 1.25], ['AltLeft', 1.25], ['Space', 6.25], ['AltRight', 1.25], ['MetaRight', 1.25], ['ContextMenu', 1.25], ['ControlRight', 1.25]]);
+  }
+  if (size === 'full' || size === 'tkl') {
+    row(y1, 15.25, ['Insert', 'Home', 'PageUp']);
+    row(y2, 15.25, ['Delete', 'End', 'PageDown']);
+    add('ArrowUp', 16.25, y4);
+    row(y5, 15.25, ['ArrowLeft', 'ArrowDown', 'ArrowRight']);
+  }
+  if (size === 'full') {
+    const x = 18.5;
+    row(y1, x, ['NumLock', 'NumpadDivide', 'NumpadMultiply', 'NumpadSubtract']);
+    row(y2, x, ['Numpad7', 'Numpad8', 'Numpad9', ['NumpadAdd', 1, 2]]);
+    row(y3, x, ['Numpad4', 'Numpad5', 'Numpad6']);
+    row(y4, x, ['Numpad1', 'Numpad2', 'Numpad3', ['NumpadEnter', 1, 2]]);
+    row(y5, x, [['Numpad0', 2], 'NumpadDecimal']);
+  }
+  let W = 0, H = 0;
+  for (const k of keys) { W = Math.max(W, k.x + k.w); H = Math.max(H, k.y + k.h); }
+  return { keys, W, H };
+}
+
+/* ---------------- Labels ---------------- */
+const NAMES = { Escape:'Esc', Backspace:'Backspace', Tab:'Tab', CapsLock:'Caps Lock', Enter:'Enter', ShiftLeft:'Shift', ShiftRight:'Shift',
+  ControlLeft:'Ctrl', ControlRight:'Ctrl', MetaLeft:'Win', MetaRight:'Win', AltLeft:'Alt', AltRight:'Alt', ContextMenu:'Menu', Space:'',
+  PrintScreen:'PrtSc', ScrollLock:'ScrLk', Pause:'Pause', Insert:'Ins', Delete:'Del', Home:'Home', End:'End', PageUp:'PgUp', PageDown:'PgDn',
+  ArrowUp:'↑', ArrowDown:'↓', ArrowLeft:'←', ArrowRight:'→', NumLock:'Num', NumpadDivide:'/', NumpadMultiply:'*', NumpadSubtract:'−',
+  NumpadAdd:'+', NumpadEnter:'Enter', NumpadDecimal:'.' };
+for (let i = 0; i < 10; i++) NAMES['Numpad' + i] = String(i);
+for (let i = 1; i <= 24; i++) NAMES['F' + i] = 'F' + i;
+const MAC = { MetaLeft:'⌘ Cmd', MetaRight:'⌘ Cmd', AltLeft:'⌥ Opt', AltRight:'⌥ Opt', ControlLeft:'⌃ Ctrl', ControlRight:'⌃ Ctrl' };
+const US = { Backquote:['`','~'], Digit1:['1','!'], Digit2:['2','@'], Digit3:['3','#'], Digit4:['4','$'], Digit5:['5','%'], Digit6:['6','^'],
+  Digit7:['7','&'], Digit8:['8','*'], Digit9:['9','('], Digit0:['0',')'], Minus:['-','_'], Equal:['=','+'], BracketLeft:['[','{'],
+  BracketRight:[']','}'], Backslash:['\\','|'], Semicolon:[';',':'], Quote:["'",'"'], Comma:[',','<'], Period:['.','>'], Slash:['/','?'],
+  IntlBackslash:['\\','|'] };
+const UK = { ...US, Backquote:['`','¬'], Digit2:['2','"'], Digit3:['3','£'], Quote:["'",'@'], Backslash:['#','~'], AltRight:'AltGr' };
+const HU = { Backquote:['0','§'], Digit1:['1',"'"], Digit2:['2','"'], Digit3:['3','+'], Digit4:['4','!'], Digit5:['5','%'], Digit6:['6','/'],
+  Digit7:['7','='], Digit8:['8','('], Digit9:['9',')'], Digit0:['Ö'], Minus:['Ü'], Equal:['Ó'], BracketLeft:['Ő'], BracketRight:['Ú'],
+  Semicolon:['É'], Quote:['Á'], Backslash:['Ű'], IntlBackslash:['Í'], Comma:[',','?'], Period:['.',':'], Slash:['-','_'],
+  KeyY:['Z'], KeyZ:['Y'], NumpadDecimal:',', AltRight:'AltGr' };
+let autoMap = null;
+
+function legend(code) {
+  if (S.os === 'mac' && MAC[code]) return { text: MAC[code] };
+  if (S.labels === 'auto' && autoMap && autoMap.has(code)) {
+    const b = autoMap.get(code);
+    return { base: b.length === 1 ? b.toUpperCase() : b };
+  }
+  const tbl = S.labels === 'hu' ? HU : S.labels === 'uk' ? UK : US;
+  const v = tbl[code];
+  if (Array.isArray(v)) return v.length > 1 ? { base: v[0], shift: v[1] } : { base: v[0] };
+  if (typeof v === 'string') return { text: v };
+  if (/^Key[A-Z]$/.test(code)) return { base: code.slice(3) };
+  if (code in NAMES) return { text: NAMES[code] };
+  return { text: XNAMES[code] && XNAMES[code].length > 1 ? XNAMES[code] : code };
+}
+function capText(code) { const l = legend(code); return (l.text != null ? l.text : l.base) || (code === 'Space' ? '␣' : ''); }
+function keyName(code) {
+  const s = capText(code);
+  if (code === 'Space') return 'Space';
+  if (code.startsWith('Arrow')) return code.slice(5) + ' arrow';
+  if (code.startsWith('Numpad')) return 'Numpad ' + s;
+  if (/^(Shift|Control|Alt|Meta)(Left|Right)$/.test(code)) return (code.endsWith('Left') ? 'Left ' : 'Right ') + s;
+  return s || code;
+}
+
+/* ---------------- State ---------------- */
+const MODE_TAG = { cover: 'c', count: 'n', hammer: 'h' };
+const DEF = { form: 'iso', size: 'full', labels: 'hu', os: 'win', mode: 'cover', thr: 50, target: 10, blind: false, conn: 'wired', hlock: false };
+let S = { ...DEF };
+let EV = {};            // code -> [[t, kind, modeTag, conn]]  kind: 0 down, 1 up, 2 auto-repeat
+const CONNS = { wired: 'Wired', '2.4g': '2.4 GHz', bt: 'Bluetooth' };
+let EXCL = new Set();   // keys marked "not on my keyboard"
+let FIN = {};          // conn -> count test finished
+let HTARGET = null;
+let XNAMES = {};        // e.key for codes outside the layout
+const DOWN = {};        // currently held keys
+const LASTKEY = {};
+const LOG = [];
+const ghost = {};
+let INSPECT = null;
+let lastMenuAt = 0;
+
+const LS = 'keytester.v1';
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(LS) || 'null');
+    if (!d) return;
+    S = { ...DEF, ...(d.S || {}) };
+    EV = d.EV || {}; EXCL = new Set(d.EXCL || []); FIN = d.FIN || {}; HTARGET = d.HTARGET || null; XNAMES = d.XNAMES || {};
+    // Data saved before events were tagged with a connection belongs to the connection selected at the time
+    for (const c in EV) for (const e of EV[c]) if (e.length < 4) e.push(S.conn);
+    if (d.FINISHED) FIN[S.conn] = true;
+  } catch (e) { /* ignore */ }
+}
+let saveT = null, saveWarned = false;
+function flush() {
+  clearTimeout(saveT); saveT = null;
+  try { localStorage.setItem(LS, JSON.stringify({ S, EV, EXCL: [...EXCL], FIN, HTARGET, XNAMES })); saveWarned = false; }
+  catch (e) {
+    if (!saveWarned) { saveWarned = true; toast('Browser storage is full or blocked. New results are not being saved. Export them, then Reset to free space.'); }
+  }
+}
+function save() { clearTimeout(saveT); saveT = setTimeout(flush, 400); }
+
+/* ---------------- Stats ---------------- */
+// Chatter = same key pressed again faster than S.thr after its previous press,
+// or faster than relThr() after its previous release (bounce while letting go).
+const relThr = () => Math.round(S.thr * .4);
+// Blind count test in progress: no press counts may be shown anywhere.
+const blindNow = () => S.mode === 'count' && S.blind && !FIN[S.conn];
+const MEMO = new Map();
+function stats(code, mode, conn = S.conn) {
+  const ev = EV[code] || [];
+  const mk = code + '|' + (mode || '*') + '|' + conn;
+  const c = MEMO.get(mk);
+  if (c && c.len === ev.length && c.thr === S.thr) return c.s;
+  const s = { presses: 0, repeats: 0, chatter: 0, minGap: Infinity, lastGap: null, minRGap: Infinity, lastRGap: null, lastChat: false,
+    holdSum: 0, holdN: 0, minHold: Infinity, gaps: [], gapChat: [] };
+  const rthr = relThr();
+  let lastDown = null, downAt = null, lastUp = null;
+  for (const [t, k, m, cn] of ev) {
+    if (cn !== conn || (mode && m !== mode)) continue;
+    if (k === 0) {
+      s.presses++;
+      s.lastChat = false; s.lastRGap = null;
+      if (lastDown !== null) {
+        const g = t - lastDown;
+        // gap since this key was last released (only if it was released after its last press)
+        const rg = lastUp !== null && lastUp >= lastDown ? t - lastUp : null;
+        const chat = g < S.thr || (rg !== null && rg < rthr);
+        s.lastGap = g; s.lastRGap = rg; s.lastChat = chat;
+        s.gaps.push(g); s.gapChat.push(chat);
+        if (g < s.minGap) s.minGap = g;
+        if (rg !== null && rg < s.minRGap) s.minRGap = rg;
+        if (chat) s.chatter++;
+      }
+      lastDown = downAt = t;
+    } else if (k === 1) {
+      if (downAt !== null) { const hd = t - downAt; s.holdSum += hd; s.holdN++; if (hd < s.minHold) s.minHold = hd; }
+      downAt = null; lastUp = t;
+    } else if (k === 2) s.repeats++;
+  }
+  MEMO.set(mk, { len: ev.length, thr: S.thr, s });
+  return s;
+}
+
+// Codes that have events on this connection
+const evCodes = (conn = S.conn) => Object.keys(EV).filter(c => EV[c].some(e => e[3] === conn));
+
+/* ---------------- Keyboard rendering ---------------- */
+let LAYOUT = null, LCODES = new Set(), KEYEL = {}, U = 48, GAP = 4;
+
+function roundPoly(pts, r) {
+  const n = pts.length; let d = '';
+  for (let i = 0; i < n; i++) {
+    const p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n];
+    const v1 = [p0[0] - p1[0], p0[1] - p1[1]], v2 = [p2[0] - p1[0], p2[1] - p1[1]];
+    const l1 = Math.hypot(v1[0], v1[1]), l2 = Math.hypot(v2[0], v2[1]);
+    const rr = Math.min(r, l1 / 2, l2 / 2);
+    const a = [p1[0] + v1[0] / l1 * rr, p1[1] + v1[1] / l1 * rr], b = [p1[0] + v2[0] / l2 * rr, p1[1] + v2[1] / l2 * rr];
+    d += (i ? 'L' : 'M') + a[0].toFixed(1) + ' ' + a[1].toFixed(1) + ' Q' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1) + ' ' + b[0].toFixed(1) + ' ' + b[1].toFixed(1) + ' ';
+  }
+  return d + 'Z';
+}
+// Must match the wide-screen @media rule. There the keyboard also shrinks to leave
+// room for the header and the mode panel, so the page fits without scrolling.
+const WIDE = matchMedia('(min-width:1280px) and (min-height:680px)');
+function calcU() {
+  const avail = $('#kbScroll').clientWidth - 4;
+  let u = Math.floor(avail / LAYOUT.W);
+  if (WIDE.matches) u = Math.min(u, Math.floor((innerHeight - 540) / LAYOUT.H));
+  return Math.max(26, Math.min(64, u));
+}
+function buildKeyboard() {
+  LAYOUT = buildLayout(S.form, S.size);
+  LCODES = new Set(LAYOUT.keys.map(k => k.code));
+  U = calcU();
+  GAP = Math.max(3, Math.round(U * .09));
+  const kb = $('#kb');
+  kb.style.width = (LAYOUT.W * U - GAP) + 'px';
+  kb.style.height = (LAYOUT.H * U - GAP) + 'px';
+  kb.style.setProperty('--u', U + 'px');
+  kb.innerHTML = ''; KEYEL = {};
+  for (const k of LAYOUT.keys) {
+    const el = h('div', 'key'); el.dataset.code = k.code;
+    const w = k.w * U - GAP, ht = k.h * U - GAP;
+    Object.assign(el.style, { left: k.x * U + 'px', top: k.y * U + 'px', width: w + 'px', height: ht + 'px' });
+    if (k.shape === 'isoEnter') {
+      el.classList.add('shape');
+      const n = .25 * U, top = U - GAP;
+      el.innerHTML = `<svg width="${w}" height="${ht}"><path d="${roundPoly([[.5,.5],[w-.5,.5],[w-.5,ht-.5],[n+.5,ht-.5],[n+.5,top-.5],[.5,top-.5]], U * .16)}"/></svg>`;
+      el.style.setProperty('--lblH', top + 'px');
+      el.style.setProperty('--barL', n + 'px');
+    }
+    const bar = h('span', 'bar'); bar.append(h('i'));
+    el.append(h('div', 'lbl'), h('span', 'cnt'), h('span', 'dot'), bar);
+    kb.append(el); KEYEL[k.code] = el;
+  }
+  paintLegends();
+}
+function paintLegends() {
+  for (const code in KEYEL) {
+    const lbl = KEYEL[code].querySelector('.lbl'), l = legend(code);
+    lbl.className = 'lbl'; lbl.textContent = '';
+    if (l.text != null) {
+      lbl.textContent = l.text;
+      if (l.text.length > 3) lbl.classList.add('sm');
+      if (l.text.length > 6) lbl.classList.add('xs');
+    } else if (l.shift) {
+      lbl.classList.add('two'); lbl.append(h('span', 's', l.shift), h('span', 'b', l.base));
+    } else lbl.textContent = l.base;
+  }
+}
+const STATES = ['down', 'ok', 'touched', 'partial', 'over', 'overc', 'under', 'dead', 'target', 'excl', 'hprog', 'ring'];
+const HAMMER_GOAL = 100;
+function renderKey(code) {
+  const el = KEYEL[code]; if (!el) return;
+  const s = stats(code, MODE_TAG[S.mode]), all = stats(code, null), N = S.target;
+  const cl = el.classList; cl.remove(...STATES);
+  const ex = EXCL.has(code);
+  if (ex) cl.add('excl');
+  if (DOWN[code]) cl.add('down');
+  const cnt = el.querySelector('.cnt'); cnt.textContent = '';
+  if (S.mode === 'cover') {
+    if (s.presses > 0) cl.add('ok');
+  } else if (S.mode === 'count') {
+    const n = s.presses;
+    if (S.blind && !FIN[S.conn]) { if (n > 0) cl.add('touched'); }
+    else {
+      if (n > 0) cnt.textContent = n;
+      if (n === 0) { if (FIN[S.conn] && !ex) cl.add('dead'); }
+      else if (n < N) { cl.add(FIN[S.conn] ? 'under' : 'partial'); el.style.setProperty('--p', (n / N * 100) + '%'); }
+      else if (n === N) cl.add('ok');
+      else cl.add(n - s.chatter <= N ? 'overc' : 'over');
+    }
+  } else {
+    // red at the first chatter, green after HAMMER_GOAL clean presses
+    const n = s.presses, tgt = code === HTARGET;
+    if (n > 0) cnt.textContent = n;
+    if (s.chatter > 0) cl.add('over');
+    else if (n >= HAMMER_GOAL) cl.add('ok');
+    else if (n > 0) { cl.add(tgt ? 'target' : 'touched', 'hprog'); el.style.setProperty('--p', (n / HAMMER_GOAL * 100) + '%'); }
+    else if (tgt) cl.add('target');
+    if (tgt && (s.chatter > 0 || n >= HAMMER_GOAL)) cl.add('ring');
+  }
+  const dot = el.querySelector('.dot');
+  dot.textContent = all.chatter || '';
+  dot.style.display = all.chatter > 0 ? '' : 'none';
+  el.title = `${keyName(code)} (${code})${blindNow() ? '' : ` · ${all.presses} presses`}${all.chatter ? ` · ${all.chatter} chatter` : ''}${ex ? ' · marked not on keyboard' : ''}`;
+}
+function renderAllKeys() { for (const c in KEYEL) renderKey(c); }
+
+/* ---------------- Progress / panels ---------------- */
+function activeCodes() { return LAYOUT.keys.map(k => k.code).filter(c => !EXCL.has(c)); }
+function renderProgress() {
+  const codes = activeCodes(), total = codes.length || 1, N = S.target;
+  let txt = '', frac = 0;
+  if (S.mode === 'cover') {
+    const done = codes.filter(c => stats(c, 'c').presses > 0).length;
+    frac = done / total; txt = `<b>${done}</b> of ${total} keys registered`;
+  } else if (S.mode === 'count') {
+    let ok = 0, over = 0, started = 0, reached = 0;
+    for (const c of codes) { const n = stats(c, 'n').presses; if (n > 0) started++; if (n >= N) reached++; if (n === N) ok++; else if (n > N) over++; }
+    if (S.blind && !FIN[S.conn]) { frac = started / total; txt = `<b>${started}</b> of ${total} keys started · counts hidden`; }
+    else { frac = reached / total; txt = `<b>${ok}</b> of ${total} at exactly ${N} · ${over} over · ${started - reached} below${FIN[S.conn] ? ' · finished' : ''}`; }
+  } else {
+    if (HTARGET) { const s = stats(HTARGET, 'h'); frac = Math.min(1, s.presses / 100); txt = `<b>${esc(keyName(HTARGET))}</b>: ${s.presses} presses · ${s.chatter} chatter`; }
+    else txt = 'Press or click the key you want to hammer';
+  }
+  const ex = LAYOUT.keys.filter(k => EXCL.has(k.code)).length;
+  if (ex) txt += ` · ${ex} excluded`;
+  $('#pfill').style.width = (frac * 100) + '%';
+  $('#ptext').innerHTML = txt;
+}
+const tile = (label, val, cls = '') => `<div class="tile ${cls}"><div class="tl">${label}</div><div class="tv">${val}</div></div>`;
+const EDGES = [0, 10, 20, 30, 40, 50, 60, 80, 100, 125, 150, 200, 300, 500, 1000, Infinity];
+function renderHammer() {
+  if (S.mode !== 'hammer') return;
+  const t = HTARGET;
+  $('#hName').textContent = t ? keyName(t) : 'No target yet';
+  $('#hCode').innerHTML = t ? `<code>${esc(t)}</code>` : 'Press the key you want to hammer, or click it on the keyboard.';
+  const s = t ? stats(t, 'h') : null;
+  const gaps = s ? s.gaps : [];
+  const real = gaps.filter(g => g < 2000).sort((a, b) => a - b);
+  const med = real.length ? real[Math.floor(real.length / 2)] : null;
+  const v = $('#hVerdict');
+  if (!s || s.presses === 0) { v.className = 'verdict'; v.textContent = 'Waiting for presses…'; }
+  else if (s.chatter > 0) { v.className = 'verdict bad'; v.textContent = `Chatter: ${s.chatter} of ${s.presses} presses (${(s.chatter / s.presses * 100).toFixed(1)}%) came less than ${S.thr} ms after the previous press or ${relThr()} ms after its release. This switch double-fires.`; }
+  else if (s.presses < HAMMER_GOAL) { v.className = 'verdict'; v.textContent = `No chatter yet in ${s.presses} of ${HAMMER_GOAL} presses. Keep going: the key turns green at ${HAMMER_GOAL} clean presses.`; }
+  else { v.className = 'verdict good'; v.textContent = `No chatter in ${s.presses} presses. This key looks healthy at the current threshold.`; }
+  $('#hStats').innerHTML = s ? [
+    tile('Presses', s.presses),
+    tile('Chatter', s.chatter, s.chatter ? 'bad' : (s.presses >= HAMMER_GOAL ? 'good' : '')),
+    tile('Chatter rate', s.presses ? (s.chatter / s.presses * 100).toFixed(1) + '%' : '—', s.chatter ? 'bad' : ''),
+    tile('Shortest gap', fms(s.minGap), s.minGap < S.thr ? 'bad' : ''),
+    tile('Shortest release gap', fms(s.minRGap), s.minRGap < relThr() ? 'bad' : ''),
+    tile('Median gap', fms(med)),
+    tile('Avg hold', fms(s.holdN ? s.holdSum / s.holdN : null)),
+    tile('Shortest hold', fms(s.minHold)),
+    tile('Auto-repeat', s.repeats),
+  ].join('') : '';
+  const counts = new Array(EDGES.length - 1).fill(0), chats = counts.slice();
+  gaps.forEach((g, j) => {
+    for (let i = 0; i < EDGES.length - 1; i++) if (g < EDGES[i + 1]) { counts[i]++; if (s.gapChat[j]) chats[i]++; break; }
+  });
+  const max = Math.max(1, ...counts);
+  $('#hHist').innerHTML = counts.map((n, i) => {
+    const lo = EDGES[i], hi = EDGES[i + 1], c = chats[i];
+    return `<div class="hb" title="${lo}–${hi === Infinity ? '∞' : hi} ms: ${n}${c ? ` (${c} chatter)` : ''}"><span class="hn">${n || ''}</span><i style="height:${n ? Math.max(2, n / max * 100) : 0}%">${c ? `<b style="height:${c / n * 100}%"></b>` : ''}</i><span class="hl">${lo >= 1000 ? '1s+' : lo}</span></div>`;
+  }).join('');
+  const last = gaps.slice(-80), lastC = s ? s.gapChat.slice(-80) : [];
+  const lh = g => Math.max(3, Math.min(100, Math.log10(Math.max(g, 1)) / 3 * 100));
+  $('#hStrip').innerHTML = last.length
+    ? last.map((g, i) => `<i class="${lastC[i] ? 'bad' : ''}" style="height:${lh(g)}%" title="${fms(g)}"></i>`).join('') +
+      `<div class="thl"><span>${S.thr} ms</span></div>`
+    : '<span class="empty">No gaps yet</span>';
+  const thl = $('#hStrip .thl');
+  if (thl) thl.style.bottom = (6 + lh(S.thr) / 100 * ($('#hStrip').clientHeight - 12)) + 'px';
+}
+function renderPanels() {
+  $('#pCover').hidden = S.mode !== 'cover';
+  $('#pCount').hidden = S.mode !== 'count';
+  $('#pHammer').hidden = S.mode !== 'hammer';
+  $('#finish').textContent = FIN[S.conn] ? 'Resume testing' : 'Finish & evaluate';
+  $('#finish').className = FIN[S.conn] ? 'btn' : 'btn primary';
+  document.querySelectorAll('.nT').forEach(e => e.textContent = S.target);
+  $('#segN').textContent = S.target;
+  renderHammer();
+}
+
+/* ---------------- Inspector / log / extras ---------------- */
+function renderInspector() {
+  const c = INSPECT, box = $('#insp');
+  if (!c) { box.innerHTML = '<div class="empty">Press any key…</div>'; return; }
+  const a = stats(c, null);
+  box.innerHTML = `<div class="ihead"><div class="icap"${capText(c).length > 4 ? ' style="font-size:14px"' : ''}>${esc(capText(c) || '?')}</div><div>
+      <div class="iname">${esc(keyName(c))}</div>
+      <div class="icode"><code>${esc(c)}</code>${LASTKEY[c] != null ? ` key <code>${esc(JSON.stringify(LASTKEY[c]))}</code>` : ''}${DOWN[c] ? ' · <span class="held">held</span>' : ''}${EXCL.has(c) ? ' · excluded' : ''}</div>
+    </div></div>
+    <div class="tiles">${tile('Presses', blindNow() ? 'hidden' : a.presses)}${tile('Chatter', a.chatter, a.chatter ? 'bad' : '')}${tile('Shortest gap', fms(a.minGap), a.minGap < S.thr ? 'bad' : '')}${tile('Shortest release gap', fms(a.minRGap), a.minRGap < relThr() ? 'bad' : '')}${tile('Last gap', fms(a.lastGap))}${tile('Avg hold', fms(a.holdN ? a.holdSum / a.holdN : null))}${tile('Auto-repeat', a.repeats)}</div>`;
+}
+function addLog(id, type, t, extra = {}) {
+  const prev = LOG[LOG.length - 1];
+  if (type === 'repeat' && prev && prev.type === 'repeat' && prev.id === id) { prev.n++; prev.t = t; return; }
+  LOG.push({ id, type, t, dt: prev ? t - prev.t : null, n: 1, ...extra });
+  if (LOG.length > 60) LOG.splice(0, LOG.length - 60);
+}
+function renderLog() {
+  const ul = $('#log');
+  if (!LOG.length) { ul.innerHTML = '<li class="empty">Events appear here as you type.</li>'; return; }
+  ul.innerHTML = LOG.slice(-16).reverse().map(e => {
+    const icon = e.type === 'down' ? '↓' : e.type === 'up' ? '↑' : '⟳';
+    let det = '';
+    const rchat = e.rgap != null && e.rgap < relThr();
+    const chat = e.type === 'down' && e.gap != null && (e.gap < S.thr || rchat);
+    if (e.type === 'down' && e.gap != null) det = chat
+      ? `<b>chatter</b> · ${rchat && e.gap >= S.thr ? `${fms(e.rgap)} after release` : `${fms(e.gap)} after previous press`}`
+      : (e.gap < 5000 ? `${fms(e.gap)} since last press` : '');
+    if (e.type === 'up') det = `held ${fms(e.hold)}`;
+    if (e.type === 'repeat') det = `auto-repeat ×${e.n} (key held)`;
+    return `<li class="${e.type}${chat ? ' chat' : ''}"><span class="dt">${e.dt == null ? '' : '+' + fdt(e.dt)}</span><span class="ic">${icon}</span><span class="kn">${esc(keyName(e.id))}</span><span class="det">${det}</span></li>`;
+  }).join('');
+}
+function renderExtras() {
+  const ids = evCodes().filter(c => !LCODES.has(c));
+  const box = $('#extras');
+  box.hidden = !ids.length;
+  if (!ids.length) return;
+  box.innerHTML = '<span class="lbl2">Other keys detected:</span>' + ids.map(c => {
+    const a = stats(c, null);
+    return `<span class="chip${a.chatter ? ' bad' : ''}" title="${esc(c)}">${esc(keyName(c))} <span class="n">×${a.presses}${a.chatter ? ` · ${a.chatter} chatter` : ''}</span></span>`;
+  }).join('');
+}
+
+/* ---------------- Report ---------------- */
+function analyze(conn = S.conn) {
+  const codes = [...new Set([...LAYOUT.keys.map(k => k.code), ...evCodes(conn)])];
+  const N = S.target, fin = !!FIN[conn];
+  const countUsed = codes.some(c => stats(c, 'n', conn).presses > 0);
+  return codes.map(c => {
+    const a = stats(c, null, conn), n = stats(c, 'n', conn);
+    const inL = LCODES.has(c), ex = EXCL.has(c);
+    const tags = []; let score = 0;
+    if (a.chatter > 0) { tags.push(['bad', `Chatter ×${a.chatter}`]); score += a.chatter * 5 + a.chatter / a.presses * 50; }
+    if (countUsed) {
+      const np = n.presses;
+      if (np > N) {
+        if (np - n.chatter <= N) tags.push(['bad', `+${np - N} extra (chatter)`]);
+        else tags.push(['warn', `+${np - N} extra`]);
+        score += (np - N) * 3;
+      } else if (fin && inL && !ex) {
+        if (np < N && np > 0) { tags.push(['miss', `−${N - np} missed`]); score += (N - np) * 6; }
+      }
+      if (fin && np === N && !a.chatter) tags.push(['good', `${N}/${N}`]);
+    }
+    const hm = stats(c, 'h', conn);
+    if (hm.presses >= HAMMER_GOAL && !hm.chatter) tags.push(['good', `Hammer ${hm.presses} clean`]);
+    if (a.repeats > 0) tags.push(['info', `Auto-repeat ×${a.repeats}`]);
+    return { c, a, n, inL, ex, tags, score, countUsed, conn };
+  });
+}
+function verdictText(r) {
+  const t = r.tags.filter(x => x[0] !== 'info' && x[0] !== 'good').map(x => x[1]);
+  if (t.length) return t.join('; ');
+  if (r.ex) return 'Excluded';
+  if (r.tags.some(x => x[0] === 'good' && x[1].startsWith('Hammer'))) return 'OK (hammer-tested)';
+  return r.a.presses ? 'OK' : 'Not registered';
+}
+let rafPending = false;
+function scheduleRender() {
+  if (rafPending) return; rafPending = true;
+  requestAnimationFrame(() => { rafPending = false; renderProgress(); renderPanels(); renderInspector(); renderLog(); renderExtras(); renderReport(); });
+}
+function renderReport() {
+  if (blindNow()) {
+    $('#rTiles').innerHTML = ''; $('#rNever').innerHTML = ''; $('#rTable').innerHTML = '';
+    $('#rSus').innerHTML = '<div class="nosus">Results are hidden during the blind count test. Press <b>Finish &amp; evaluate</b> to see them.</div>';
+    return;
+  }
+  const rows = analyze(), N = S.target;
+  const lay = rows.filter(r => r.inL && !r.ex);
+  const reg = lay.filter(r => r.a.presses > 0).length;
+  const chatKeys = rows.filter(r => r.a.chatter > 0).length;
+  const presses = rows.reduce((s, r) => s + r.a.presses, 0);
+  const sus = rows.filter(r => r.score >= 1).sort((a, b) => b.score - a.score);
+  let tl = tile('Keys registered', `${reg} / ${lay.length}`, reg === lay.length && lay.length ? 'good' : '') +
+    tile('Total presses', presses) +
+    tile('Keys with chatter', chatKeys, chatKeys ? 'bad' : (presses ? 'good' : '')) +
+    tile('Suspect keys', sus.length, sus.length ? 'bad' : '');
+  if (rows[0] && rows[0].countUsed) {
+    const ok = lay.filter(r => r.n.presses === N).length, over = lay.filter(r => r.n.presses > N).length;
+    const under = lay.filter(r => r.n.presses < N && r.n.presses > 0).length;
+    tl += tile(`Count: exactly ${N}`, ok, FIN[S.conn] && ok === lay.length ? 'good' : '') + tile('Count: over', over, over ? 'bad' : '') + tile(FIN[S.conn] ? 'Count: under' : 'Count: below', under, FIN[S.conn] && under ? 'bad' : '');
+  }
+  tl += tile('Connection', CONNS[S.conn]);
+  $('#rTiles').innerHTML = tl;
+
+  $('#rSus').innerHTML = sus.length ? sus.map(r => `
+    <div class="sus">
+      <div class="mcap">${esc(capText(r.c) || '?')}</div>
+      <div class="sinfo">
+        <div class="sname">${esc(keyName(r.c))}<code>${esc(r.c)}</code></div>
+        <div class="stags">${r.tags.map(t => `<span class="tag ${t[0]}">${esc(t[1])}</span>`).join('')}</div>
+        <div class="snums">${r.a.presses} presses · shortest gap ${fms(r.a.minGap)} · shortest release gap ${fms(r.a.minRGap)} · chatter rate ${r.a.presses ? (r.a.chatter / r.a.presses * 100).toFixed(1) : 0}%${r.countUsed ? ` · count test ${r.n.presses}/${N}` : ''}</div>
+      </div>
+      <button class="btn sm" data-hammer="${esc(r.c)}">Hammer test</button>
+    </div>`).join('')
+    : `<div class="nosus">${presses ? 'No suspicious keys so far.' : 'Start pressing keys. Suspects show up here.'}</div>`;
+
+  const never = lay.filter(r => r.a.presses === 0);
+  const zero = FIN[S.conn] && rows[0] && rows[0].countUsed ? lay.filter(r => r.n.presses === 0 && r.a.presses > 0) : [];
+  const chips = list => `<div class="never">${list.map(r => `<span class="chip">${esc(keyName(r.c))}</span>`).join('')}</div>`;
+  $('#rNever').innerHTML =
+    (zero.length ? `<h3>Not registered in the count test (${zero.length})</h3><p style="margin:-4px 0 8px;font-size:12.5px">These keys worked earlier but got 0 count-test presses. Either you skipped them, or the key is now dead.</p>` + chips(zero) : '') +
+    (presses && never.length && never.length < lay.length ? `<h3>Never registered (${never.length})</h3>` + chips(never) : '');
+
+  if ($('#rAll').open) {
+    const sorted = rows.slice().sort((a, b) => b.score - a.score || (b.inL - a.inL));
+    $('#rTable').innerHTML = `<tr><th>Key</th><th>Code</th><th class="num">Presses</th><th class="num">Chatter</th><th class="num">Shortest gap</th><th class="num">Shortest release gap</th><th class="num">Avg hold</th><th class="num">Repeats</th><th class="num">Count</th><th>Verdict</th></tr>` +
+      sorted.map(r => `<tr class="${r.score >= 1 ? 'bad' : ''}"><td>${esc(keyName(r.c))}</td><td><code>${esc(r.c)}</code></td><td class="num">${r.a.presses}</td><td class="num">${r.a.chatter}</td><td class="num">${fms(r.a.minGap)}</td><td class="num">${fms(r.a.minRGap)}</td><td class="num">${fms(r.a.holdN ? r.a.holdSum / r.a.holdN : null)}</td><td class="num">${r.a.repeats}</td><td class="num">${r.countUsed ? r.n.presses + '/' + N : '—'}</td><td>${esc(verdictText(r))}</td></tr>`).join('');
+  }
+}
+
+/* ---------------- Input ---------------- */
+const now = e => Math.round((performance.timeOrigin + e.timeStamp) * 10) / 10;
+const idOf = e => (e.code && e.code !== 'Unidentified') ? e.code : 'Key:' + (e.key || '?');
+function push(code, t, k) { (EV[code] || (EV[code] = [])).push([t, k, MODE_TAG[S.mode], S.conn]); }
+function flash(code) {
+  const el = KEYEL[code];
+  if (el && el.animate) el.animate([{ filter: 'brightness(1.9)' }, { filter: 'brightness(1)' }], { duration: 300, easing: 'ease-out' });
+}
+function touched(id) { renderKey(id); scheduleRender(); save(); }
+
+// Hammer view follows the pressed key, unless the target is locked
+function setHammerTarget(id) {
+  if (S.mode !== 'hammer' || HTARGET === id || (S.hlock && HTARGET)) return;
+  const prev = HTARGET; HTARGET = id;
+  if (prev) renderKey(prev);
+}
+// With Lock target on, presses of other keys are ignored in hammer mode
+const lockedOut = id => S.mode === 'hammer' && S.hlock && HTARGET && id !== HTARGET;
+let lockToastAt = -Infinity;
+function onDown(e) {
+  e.preventDefault(); e.stopPropagation();
+  if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+  const id = idOf(e), t = now(e);
+  LASTKEY[id] = e.key;
+  if (!LCODES.has(id) && !(id in NAMES) && !/^Key[A-Z]$/.test(id) && !(id in US)) XNAMES[id] = e.key;
+  if (id === 'ContextMenu') lastMenuAt = performance.now();
+  if (lockedOut(id)) {
+    if (!e.repeat) { DOWN[id] = { t, skip: true }; renderKey(id); }
+    if (performance.now() - lockToastAt > 4000) { lockToastAt = performance.now(); toast(`Locked to ${keyName(HTARGET)}: other keys are not counted. Turn off Lock target to test them.`); }
+    return;
+  }
+  INSPECT = id;
+  if (e.repeat) { push(id, t, 2); addLog(id, 'repeat', t); touched(id); return; }
+  // Windows sends a fake Left Ctrl press together with AltGr. Drop it.
+  if (id === 'AltRight' && DOWN.ControlLeft && t - DOWN.ControlLeft.t < 10) {
+    const arr = EV.ControlLeft, last = arr && arr[arr.length - 1];
+    if (last && last[1] === 0 && last[0] === DOWN.ControlLeft.t) { arr.pop(); if (!arr.length) delete EV.ControlLeft; MEMO.clear(); }
+    ghost.ControlLeft = true; delete DOWN.ControlLeft;
+    const li = LOG.length - 1; if (li >= 0 && LOG[li].id === 'ControlLeft') LOG.pop();
+    if (HTARGET === 'ControlLeft' && !stats('ControlLeft', 'h').presses) HTARGET = null;
+    renderKey('ControlLeft');
+  }
+  DOWN[id] = { t };
+  push(id, t, 0);
+  setHammerTarget(id);
+  const a = stats(id, null);
+  addLog(id, 'down', t, a.presses > 1 ? { gap: a.lastGap, rgap: a.lastRGap } : {});
+  flash(id);
+  touched(id);
+}
+function onUp(e) {
+  e.preventDefault(); e.stopPropagation();
+  const id = idOf(e), t = now(e);
+  if (id === 'ContextMenu') lastMenuAt = performance.now();
+  if (ghost[id]) { delete ghost[id]; return; }
+  if (DOWN[id]) {
+    const d = DOWN[id]; delete DOWN[id];
+    if (d.skip) { renderKey(id); return; }
+    push(id, t, 1); addLog(id, 'up', t, { hold: t - d.t });
+  } else if (id === 'PrintScreen' && !lockedOut(id)) {
+    // Windows only delivers keyup for PrtSc
+    push(id, t, 0); push(id, t, 1); addLog(id, 'down', t); flash(id);
+    setHammerTarget(id);
+  } else return;
+  touched(id);
+}
+window.addEventListener('keydown', onDown, true);
+window.addEventListener('keyup', onUp, true);
+window.addEventListener('blur', () => { for (const k in DOWN) { delete DOWN[k]; renderKey(k); } });
+window.addEventListener('pagehide', flush);
+document.addEventListener('contextmenu', e => {
+  if (performance.now() - lastMenuAt < 800) { e.preventDefault(); return; }
+  const k = e.target.closest('.key');
+  if (!k) return;
+  e.preventDefault();
+  const c = k.dataset.code;
+  EXCL.has(c) ? EXCL.delete(c) : EXCL.add(c);
+  toast(EXCL.has(c) ? `${keyName(c)} marked as not on your keyboard` : `${keyName(c)} included again`);
+  renderKey(c); scheduleRender(); save();
+});
+$('#kb').addEventListener('click', e => {
+  const k = e.target.closest('.key'); if (!k) return;
+  const c = k.dataset.code;
+  INSPECT = c;
+  if (S.mode === 'hammer') {
+    if (S.hlock && HTARGET) { if (c !== HTARGET) toast(`Target is locked to ${keyName(HTARGET)}. Turn off Lock target to change it.`); }
+    else { HTARGET = c; renderAllKeys(); save(); }
+  }
+  scheduleRender();
+});
+
+/* ---------------- Controls ---------------- */
+function syncControls() {
+  for (const id of ['form', 'size', 'labels', 'os', 'conn']) $('#' + id).value = S[id];
+  $('#target').value = String(S.target);
+  $('#thr').value = S.thr; $('#thrV').textContent = S.thr + ' ms';
+  $('#blind').checked = S.blind;
+  $('#hLock').checked = S.hlock;
+  document.querySelectorAll('#modes button').forEach(b => b.classList.toggle('on', b.dataset.mode === S.mode));
+  $('#reset').textContent = `↺ Reset ${S.mode === 'cover' ? 'coverage' : S.mode === 'count' ? 'count test' : 'hammer'}`;
+}
+function renderAll() { syncControls(); renderAllKeys(); scheduleRender(); }
+function loadAutoMap() {
+  if (S.labels !== 'auto' || autoMap) return;
+  if (!navigator.keyboard || !navigator.keyboard.getLayoutMap) { toast('Layout detection is not available in this browser. Showing US labels.'); return; }
+  navigator.keyboard.getLayoutMap().then(m => { autoMap = m; paintLegends(); scheduleRender(); })
+    .catch(() => toast('Could not read the keyboard layout. Showing US labels.'));
+}
+document.querySelectorAll('#modes button').forEach(b => b.addEventListener('click', () => {
+  S.mode = b.dataset.mode; b.blur(); renderAll(); save();
+}));
+function setConn(c) {
+  const prev = S.conn;
+  if (c === prev) return;
+  S.conn = c; LOG.length = 0;
+  renderAll(); save();
+  toast(`Now recording ${CONNS[c]}. ${evCodes(prev).length ? `${CONNS[prev]} results are kept; switch back to see them.` : ''}`);
+}
+$('#conn').addEventListener('change', e => { e.target.blur(); setConn(e.target.value); });
+for (const id of ['form', 'size', 'labels', 'os']) $('#' + id).addEventListener('change', e => {
+  S[id] = e.target.value; e.target.blur();
+  if (id === 'form' || id === 'size') buildKeyboard();
+  else if (id === 'labels' || id === 'os') { loadAutoMap(); paintLegends(); }
+  renderAll(); save();
+});
+$('#target').addEventListener('change', e => { S.target = +e.target.value; e.target.blur(); renderAll(); save(); });
+$('#thr').addEventListener('input', e => { S.thr = +e.target.value; $('#thrV').textContent = S.thr + ' ms'; renderAllKeys(); scheduleRender(); save(); });
+$('#thr').addEventListener('change', e => e.target.blur());
+$('#blind').addEventListener('change', e => { S.blind = e.target.checked; renderAll(); save(); });
+$('#finish').addEventListener('click', () => {
+  FIN[S.conn] = !FIN[S.conn]; renderAll(); save();
+  if (FIN[S.conn]) {
+    const sus = analyze().filter(r => r.score >= 1).length;
+    toast(sus ? `Done. ${sus} suspect key${sus > 1 ? 's' : ''} found.` : 'Done. No suspect keys.');
+    $('.report').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+});
+$('#hLock').addEventListener('change', e => { S.hlock = e.target.checked; renderAll(); save(); });
+$('#reset').addEventListener('click', () => {
+  const mt = MODE_TAG[S.mode];
+  const hit = e => e[2] === mt && e[3] === S.conn;
+  let n = 0; for (const c in EV) for (const e of EV[c]) if (hit(e)) n++;
+  if (n > 30 && !confirm(`Clear ${n} recorded events from this mode (${CONNS[S.conn]} only)?`)) return;
+  for (const c in EV) { EV[c] = EV[c].filter(e => !hit(e)); if (!EV[c].length) delete EV[c]; }
+  if (S.mode === 'count') FIN[S.conn] = false;
+  if (S.mode === 'hammer') HTARGET = null;
+  MEMO.clear(); LOG.length = 0; renderAll(); save();
+});
+$('#resetAll').addEventListener('click', () => {
+  if (!confirm('Delete all recorded data from every mode and every connection? Settings and excluded keys are kept.')) return;
+  EV = {}; FIN = {}; HTARGET = null; XNAMES = {}; MEMO.clear(); LOG.length = 0; INSPECT = null; renderAll(); save();
+});
+$('#rAll').addEventListener('toggle', () => renderReport());
+$('#rSus').addEventListener('click', e => {
+  const b = e.target.closest('[data-hammer]'); if (!b) return;
+  S.mode = 'hammer'; HTARGET = b.dataset.hammer; INSPECT = HTARGET;
+  renderAll(); save();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* Fullscreen + keyboard lock */
+$('#connInfo button').addEventListener('click', e => { e.stopPropagation(); e.currentTarget.blur(); $('#connInfo').classList.toggle('open'); });
+document.addEventListener('click', e => { if (!e.target.closest('#connInfo')) $('#connInfo').classList.remove('open'); });
+$('#fs').addEventListener('click', async () => {
+  try {
+    if (document.fullscreenElement) { await document.exitFullscreen(); return; }
+    await document.documentElement.requestFullscreen();
+    if (navigator.keyboard && navigator.keyboard.lock) { await navigator.keyboard.lock(); toast('Keys locked. Esc, Win and browser shortcuts can be tested. Hold Esc to exit.'); }
+    else toast('Fullscreen on. Keyboard lock needs Chrome or Edge.');
+  } catch (err) { toast('Could not enter fullscreen: ' + err.message); }
+});
+document.addEventListener('fullscreenchange', () => {
+  const on = !!document.fullscreenElement;
+  $('#fs').textContent = on ? '⤫ Exit fullscreen' : '⛶ Fullscreen + lock keys';
+  if (!on && navigator.keyboard && navigator.keyboard.unlock) navigator.keyboard.unlock();
+});
+
+/* Export */
+function download(name, text, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = name; document.body.append(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+function stamp() { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`; }
+const r1 = v => (v == null || !isFinite(v)) ? '' : Math.round(v * 10) / 10;
+const usedConns = () => Object.keys(CONNS).filter(c => evCodes(c).length);
+const allRows = () => (usedConns().length ? usedConns() : [S.conn]).flatMap(c => analyze(c).sort((a, b) => b.score - a.score));
+const expName = ext => { const u = usedConns(); return `keytest-${u.length > 1 ? 'all' : u[0] || S.conn}-${stamp()}.${ext}`; };
+function rowData(r) {
+  return {
+    connection: r.conn, key: keyName(r.c), code: r.c, in_layout: r.inL, excluded: r.ex,
+    presses: r.a.presses, chatter: r.a.chatter, chatter_pct: r.a.presses ? r1(r.a.chatter / r.a.presses * 100) : 0,
+    min_gap_ms: r1(r.a.minGap), min_release_gap_ms: r1(r.a.minRGap), avg_hold_ms: r1(r.a.holdN ? r.a.holdSum / r.a.holdN : null), min_hold_ms: r1(r.a.minHold),
+    auto_repeats: r.a.repeats, count_presses: r.countUsed ? r.n.presses : '', count_target: r.countUsed ? S.target : '',
+    score: r1(r.score), verdict: verdictText(r),
+  };
+}
+$('#expCsv').addEventListener('click', () => {
+  const rows = allRows().map(rowData);
+  const cols = Object.keys(rows[0] || { key: 0 });
+  const q = v => { const s = String(v); return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const csv = [cols.join(','), ...rows.map(r => cols.map(c => q(r[c])).join(','))].join('\n');
+  download(expName('csv'), csv, 'text/csv');
+});
+$('#expJson').addEventListener('click', () => {
+  const data = {
+    app: 'Key Tester', version: 2, exportedAt: new Date().toISOString(), connections: usedConns(), selectedConnection: S.conn,
+    settings: { layout: S.form, size: S.size, labels: S.labels, chatterThresholdMs: S.thr, releaseChatterThresholdMs: relThr(), countTarget: S.target, countFinished: FIN, hammerGoal: HAMMER_GOAL },
+    excluded: [...EXCL], userAgent: navigator.userAgent,
+    keys: allRows().map(rowData),
+    events: EV, eventFormat: '[absoluteTimeMs, kind (0 down, 1 up, 2 auto-repeat), mode (c coverage, n count, h hammer), connection (wired, 2.4g, bt)]',
+  };
+  download(expName('json'), JSON.stringify(data, null, 1), 'application/json');
+});
+
+let toastT;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+/* ---------------- Boot ---------------- */
+load();
+buildKeyboard();
+loadAutoMap();
+renderAll();
+const refit = () => { if (calcU() !== U) { buildKeyboard(); renderAllKeys(); } };
+let lastAvail = 0;
+new ResizeObserver(() => {
+  const a = $('#kbScroll').clientWidth;
+  if (Math.abs(a - lastAvail) < 2) return;
+  lastAvail = a;
+  refit();
+}).observe($('#kbScroll'));
+window.addEventListener('resize', refit);
+</script>
+</body>
+</html>
